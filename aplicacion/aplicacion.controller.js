@@ -50,6 +50,9 @@ exports.getAplicaPorCuartelGlobal = function ( req,result ) {
       let id_predio = res[0].nombre_usuario;
       let newsql = "select * from clientes_sistema where nombre_usuario = '"+nombre_usuario+"'";
 		console.log(newsql);
+		setInterval(function(){
+			dbs.query("SELECT 1");
+		},5000);
       dbs.query(newsql,function(error,data){
         if(data<=0){
           result.json({"Error": "#219 El nombre de usuario no exite en los registros"});
@@ -185,7 +188,9 @@ exports.getAplicaPorCuartelGlobal = function ( req,result ) {
               sql += " AND (predio_movimientos_detalle.codigo_producto NOT LIKE '%rrhh%' ";
               sql += " OR  predio_movimientos_detalle.codigo_producto IS NULL) ";
               sql += " ORDER BY predio_trabajos_agricolas.fecha_inicio DESC";
-
+				setInterval(function(){
+					connection.query("SELECT 1");
+				},5000);
               connection.query(sql, function (err, res) {
                 if(err) {
                     result.json({"Error": "#862 No se pudo obtener el resultado"});
