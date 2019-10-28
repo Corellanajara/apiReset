@@ -1,27 +1,8 @@
 //var db = require('./../db.js');
-const fs = require('fs');
-const { Parser } = require('json2csv');
-var json2xls = require('json2xls');
-var date = new Date().getTime();
-const csvjson = require('csvjson');
-const readFile = require('fs').readFile;
-const writeFile = require('fs').writeFile;
-
 var dba = require('./../dbSofia.js');
 var dbs = require('./../dbSofia.js');
 let tipoCosecha = "A";
 const expressip = require('express-ip');
-
-function exportAsExcelFile(json, excelFileName){
-  const worksheet = XLSX.utils.json_to_sheet(json);
-  const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  saveAsExcelFile(excelBuffer, excelFileName);
-}
-function saveAsExcelFile(buffer, fileName) {
-   const data = new Blob([buffer], {type: EXCEL_TYPE});
-   FileSaver.saveAs(data, fileName + '_export_' + new  Date().getTime() + EXCEL_EXTENSION);
-}
 
 function getIPAddress() {
   var interfaces = require('os').networkInterfaces();
@@ -46,11 +27,11 @@ function formatedDate(fecha){
   if(mes<10){
     Mes = "0"+(parseInt(mes)+1);
   }
-  return Year+"-"+Mes+"-"+(Dias+1);
+  return Year+"-"+Mes+"-"+Dias;
 }
 
 exports.getAplicaPorCuartelGlobal = function ( req,result ) {
-  let sql = "select * from clientes_predios_apis where key_usuario = '"+(req.params.key|| req.body.key)+"'";
+  let sql = "select * from clientes_predios_apis where key_usuario = '"+req.params.key+"'";
   	setInterval(function(){
 		dba.query("SELECT 1");
 	},5000);  
@@ -135,7 +116,6 @@ console.log('datos conn bd',datos);
               let codCuartel = req.body.codCuartel || false;
               let fechaInicioDesde = req.body.fechaInicioDesde || false;
               let fechaInicioHasta = req.body.fechaInicioHasta || false;
-			  let exportar = req.body.exportar || false;
 
               if(idInterno == parseInt(idInterno) && idInterno > 0){
                 sql += " AND predio_movimientos_detalle.id_interno = "+idInterno;
@@ -195,10 +175,10 @@ console.log('datos conn bd',datos);
               if(flag == 2){
                 let fechaInicio = new Date(fechaInicioDesde);
                 let fechaHasta = new Date(fechaInicioHasta);
-                if(fechaInicio <= fechaHasta){
+                if(fechaInicio < fechaHasta){
                     let fechaInicioFormated = formatedDate(fechaInicio);
                     let fechaHastaFormated = formatedDate(fechaHasta)
-                    sql += " AND fecha_inicio between '"+fechaInicioFormated+"T00:00' and '"+fechaHastaFormated+"T23:59' ";
+                    sql += " AND fecha_inicio between '"+fechaInicioFormated+"' and '"+fechaHastaFormated+"' ";
                 }else{
                   result.json({"Error":"#725 El valor de las fechas no cumplen los requisitos"});
                   return false;
@@ -222,31 +202,8 @@ console.log(sql);
                     return false;
                 }
                 else{
-					console.log(exportar);
-					if(exportar == 'excel'){
-						var xls = json2xls(res);
-						fs.writeFileSync('archivos/data.xlsx', xls, 'binary');
-					//	result.send("generado");
-						result.download('./archivos/data.xlsx');
-						return true;					
-					} 
-					if(exportar == 'csv'){
-						var obj = res;
-						var keys = "";
-						for(key in obj){
-							keys += key+",";																			
-						}
-						const json2csvParser = new Parser({ keys });
-						const csv = json2csvParser.parse(res);
-						result.send(csv)
-						return true;
-					}
-					if(exportar = 'json' || !exportar){
-						result.send(res);
-						return true;
-					}
-                    
-                    
+                    result.send(res);
+                    return true;
                 }
               });
 
@@ -258,66 +215,19 @@ console.log(sql);
 }
 
 function resetSql(tipoCosecha){
-//  let sql = "SELECT ";
-//  sql += "predio_trabajos_agricolas.id_interno,predio_trabajos_agricolas.fecha_inicio,predio_trabajos_agricolas.id_cultivo,predio_trabajos_agricolas.id_labor,predio_trabajos_agricolas.cosecha,predio_trabajos_agricolas.valor_total,predio_movimientos.id_interno,predio_movimientos.id_area_operativa,";
-//  sql += "predio_movimientos.valor_total,predio_movimientos.id_tabla_externa,predio_movimientos_detalle.id_producto_bodega,predio_movimientos_detalle.cantidad,predio_movimientos_detalle.dias_carencias,";
-//  sql += "predio_movimientos_detalle.dosis_ha,predio_movimientos_detalle.mojamiento_ha,bodega_productos.nombre_producto,bodega_productos.ing_activo,predio_trabajos_agricolas.fecha_inicio_aplica,";
-//  sql += "predio_trabajos_agricolas.fecha_termino_aplica,predio_trabajos_agricolas.jefe_aplicador_dos,predio_trabajos_agricolas.jefe_dosificador,predio_trabajos_agricolas.id_clima_condicion,predio_trabajos_agricolas.temperatura,";
-//  sql += "predio_trabajos_agricolas.id_clima_condicion_viento,predio_movimientos_detalle.tipo_tratamiento,predio_movimientos_detalle.valor_total,predio_trabajos_agricolas.id_potrero_clasificacion,predio_trabajos_agricolas.hora_inicio_aplica,";
-//  sql += "predio_trabajos_agricolas.hora_termino_aplica,predio_movimientos_detalle.horas_reingreso,predio_trabajos_agricolas.observaciones,bodega_productos.codigo_producto,predio_trabajos_agricolas.id_orden_interno,predio_trabajos_agricolas.id_cuartel AS cod_cuartel,";
-//  sql += "predio_trabajos_agricolas.por_hacer,predio_trabajos_agricolas.id_predio,bodega_productos.unidad_medida,predio_trabajos_agricolas.jefe_huerto,predio_trabajos_agricolas.jefe_aplicador_tres,";
- // sql += "predio_trabajos_agricolas.jefe_aplicador_cuatro,predio_movimientos_detalle.id_interno AS id_registro ";
- // sql += "FROM predio_trabajos_agricolas ";
- // sql += "LEFT OUTER JOIN predio_movimientos ON predio_trabajos_agricolas.id_interno = predio_movimientos.id_tabla_externa ";
- // sql += "LEFT OUTER JOIN predio_movimientos_detalle ON predio_movimientos.id_interno = predio_movimientos_detalle.id_padre_movimiento ";
- // sql += "INNER JOIN bodega_productos ON predio_movimientos_detalle.id_producto_bodega = bodega_productos.id_producto ";
- // sql += "WHERE (predio_trabajos_agricolas.cosecha = '"+tipoCosecha+"')";
-
-let sql = "SELECT predio_trabajos_agricolas.id_interno, ";
-    sql += "predio_trabajos_agricolas.id_predio, ";
-    sql += "predio_trabajos_agricolas.id_orden_interno, ";
-    sql += "predio_trabajos_agricolas.fecha_inicio, ";
-    sql += "predio_trabajos_agricolas.id_potrero_clasificacion, ";
-    sql += "predio_trabajos_agricolas.id_cuartel AS cod_cuartel, ";
-    sql += "predio_trabajos_agricolas.id_variedad, ";
-    sql += "predio_trabajos_agricolas.id_labor, ";
-    sql += "predio_trabajos_agricolas.id_labor_valores, ";
-    sql += "predio_movimientos_detalle.tipo_tratamiento, ";
-    sql += "bodega_productos.codigo_producto, ";
-    sql += "bodega_productos.nombre_producto, ";
-    sql += "bodega_productos.ing_activo, ";
-    sql += "predio_movimientos_detalle.cantidad, ";
-    sql += "bodega_productos.unidad_medida, ";
-    sql += "predio_trabajos_agricolas.fecha_inicio_aplica, ";
-    sql += "predio_trabajos_agricolas.hora_inicio_aplica, ";
-    sql += "predio_trabajos_agricolas.fecha_termino_aplica, ";
-    sql += "predio_trabajos_agricolas.hora_termino_aplica, ";
-    sql += "predio_movimientos_detalle.dias_carencias, ";
-    sql += "predio_movimientos_detalle.horas_reingreso, ";
-    sql += "predio_movimientos_detalle.dosis_ha, ";
-    sql += "predio_movimientos_detalle.mojamiento_ha, ";
-    sql += "predio_trabajos_agricolas.por_hacer, ";
-    sql += "predio_trabajos_agricolas.id_clima_condicion, ";
-    sql += "predio_trabajos_agricolas.id_clima_condicion_viento, ";
-    sql += "predio_trabajos_agricolas.temperatura, ";
-    sql += "predio_trabajos_agricolas.jefe_huerto, ";
-    sql += "predio_trabajos_agricolas.jefe_dosificador, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador_dos, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador_tres, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador_cuatro, ";
-    sql += "predio_trabajos_agricolas.observaciones, ";
-    sql += "predio_movimientos_detalle.valor_total, ";
-    sql += "predio_movimientos_detalle.id_interno AS id_registro ";
-    sql += "FROM predio_trabajos_agricolas ";
-    sql += "LEFT OUTER JOIN predio_movimientos ON predio_trabajos_agricolas.id_interno = predio_movimientos.id_tabla_externa ";
-    sql += "LEFT OUTER JOIN predio_movimientos_detalle ON predio_movimientos.id_interno = predio_movimientos_detalle.id_padre_movimiento ";
-    sql += "INNER JOIN bodega_productos ON predio_movimientos_detalle.id_producto_bodega = bodega_productos.id_producto ";
-    sql += "WHERE (predio_trabajos_agricolas.cosecha = '" + tipoCosecha + "')";
-
-
-
-
-
+  let sql = "SELECT ";
+  sql += "predio_trabajos_agricolas.id_interno,predio_trabajos_agricolas.fecha_inicio,predio_trabajos_agricolas.id_cultivo,predio_trabajos_agricolas.id_labor,predio_trabajos_agricolas.cosecha,predio_trabajos_agricolas.valor_total,predio_movimientos.id_interno,predio_movimientos.id_area_operativa,";
+  sql += "predio_movimientos.valor_total,predio_movimientos.id_tabla_externa,predio_movimientos_detalle.id_producto_bodega,predio_movimientos_detalle.cantidad,predio_movimientos_detalle.dias_carencias,";
+  sql += "predio_movimientos_detalle.dosis_ha,predio_movimientos_detalle.mojamiento_ha,bodega_productos.nombre_producto,bodega_productos.ing_activo,predio_trabajos_agricolas.fecha_inicio_aplica,";
+  sql += "predio_trabajos_agricolas.fecha_termino_aplica,predio_trabajos_agricolas.jefe_aplicador_dos,predio_trabajos_agricolas.jefe_dosificador,predio_trabajos_agricolas.id_clima_condicion,predio_trabajos_agricolas.temperatura,";
+  sql += "predio_trabajos_agricolas.id_clima_condicion_viento,predio_movimientos_detalle.tipo_tratamiento,predio_movimientos_detalle.valor_total,predio_trabajos_agricolas.id_potrero_clasificacion,predio_trabajos_agricolas.hora_inicio_aplica,";
+  sql += "predio_trabajos_agricolas.hora_termino_aplica,predio_movimientos_detalle.horas_reingreso,predio_trabajos_agricolas.observaciones,bodega_productos.codigo_producto,predio_trabajos_agricolas.id_orden_interno,predio_trabajos_agricolas.id_cuartel AS cod_cuartel,";
+  sql += "predio_trabajos_agricolas.por_hacer,predio_trabajos_agricolas.id_predio,bodega_productos.unidad_medida,predio_trabajos_agricolas.jefe_huerto,predio_trabajos_agricolas.jefe_aplicador_tres,";
+  sql += "predio_trabajos_agricolas.jefe_aplicador_cuatro,predio_movimientos_detalle.id_interno AS id_registro ";
+  sql += "FROM predio_trabajos_agricolas ";
+  sql += "LEFT OUTER JOIN predio_movimientos ON predio_trabajos_agricolas.id_interno = predio_movimientos.id_tabla_externa ";
+  sql += "LEFT OUTER JOIN predio_movimientos_detalle ON predio_movimientos.id_interno = predio_movimientos_detalle.id_padre_movimiento ";
+  sql += "INNER JOIN bodega_productos ON predio_movimientos_detalle.id_producto_bodega = bodega_productos.id_producto ";
+  sql += "WHERE (predio_trabajos_agricolas.cosecha = '"+tipoCosecha+"')";
   return sql;
 }
