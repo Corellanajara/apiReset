@@ -37,6 +37,7 @@ app.use(function(req, res, next) {
 
 // las url de ruteo
 require('./aplicacion/aplicacion.routes.js')(app);
+require('./papeleta/aplicacion.routes.js')(app);
 
 
 app.get('/', (req, res) => {

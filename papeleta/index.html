@@ -1,15 +1,79 @@
-<form class="" action="http://api.sofiagestionagricola.cl/aplicaciones/cuartel" method="post">  
-  <input type="text" name="key" value="" required placeholder="key">
-  <input type="number" name="idInterno" value="" placeholder="id interno">
-  <input type="number" name="idFaena" value="" placeholder="id de la faena">
-  <input type="number" name="codCuartel" value="" placeholder="codigo del cuartel">
-  <input type="number" name="numOrden" value="" placeholder="numero de orden">
-  <input type="date" name="fechaInicioDesde" value="">
-  <input type="date" name="fechaInicioHasta" value="">
-  <select class="" name="exportar">
-    <option value="excel">Excel</option>
-    <option value="csv">CSV</option>
-    <option value="json">JSON</option>
-  </select>
-  <input type="submit" name="" value="Enviar">
-</form>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Formulario obtención datos API!</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  </head>
+  <body>
+  <section class="section">
+    <div class="container">
+      <form class="" action="http://localhost:4500/papeleta" method="post">
+        <div class="field">
+          <label class="label">Key</label>
+          <div class="control">
+            <input class="input is-danger" name="key" type="text" placeholder="key">
+          </div>
+        </div>
+
+        <div class="field">
+          <label class="label">ID Interno</label>
+          <div class="control has-icons-left has-icons-right">
+            <input class="input is-success" name="idInterno" type="text" placeholder="id interno">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Codigo de cuartel</label>
+          <div class="control has-icons-left has-icons-right">
+            <input class="input is-success" name="codCuartel" type="text" placeholder="Codigo de cuartel">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Codigo de producto</label>
+          <div class="control">
+            <input class="input is-success" name="codProducto" type="text" placeholder="Codigo de producto">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label"></label>
+          <div class="control">
+            <input type="date" class="input" name="fechaInicioDesde" value="">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label"></label>
+          <div class="control">
+            <input type="date" class="input" name="fechaInicioHasta" value="">
+          </div>
+        </div>
+
+
+
+        <div class="field">
+          <label class="label">Exportar</label>
+          <div class="control">
+            <div class="select">
+              <select name="exportar">
+                <option value="excel">Excel</option>
+                <option value="csv">CSV</option>
+                <option value="json">JSON</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+
+
+        <div class="field is-grouped">
+          <div class="control">
+            <button type="submit" class="button is-link is-primary">Enviar</button>
+          </div>
+        </div>
+    </form>
+
+    </div>
+  </section>
+  </body>
+</html>

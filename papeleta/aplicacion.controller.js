@@ -92,7 +92,7 @@ console.log('datos conn bd',datos);
 		  let ip = req.headers['x-forwarded-for'];
 
           if(ipInfo.error){
-            sqlTrazabilidad += " values ('"+req.connection.remoteAddress+"',{},'Talca','ML','Chile','AplicacionPorCuartel','"+JSON.stringify(req.body)+"','"+req.params.key+"')";
+            sqlTrazabilidad += " values ('"+req.connection.remoteAddress+"','ll','Talca','ML','Chile','AplicacionPorCuartel','"+JSON.stringify(req.body)+"','"+req.params.key+"')";
           }else{
             sqlTrazabilidad += " values ('"+ip+"','"+JSON.stringify(ipInfo.ll)+"','"+ipInfo.city+"','"+ipInfo.region+"','"+ipInfo.country+"','AplicacionPorCuartel','"+JSON.stringify(req.body)+"','"+req.params.key+"')";
           }
@@ -131,15 +131,28 @@ console.log('datos conn bd',datos);
 
               let sql = resetSql(tipoCosecha);
               let idInterno = req.body.idInterno || false;
+              let idPredio = req.body.idPredio || 2;
               let idFaena = req.body.idFaena || false;
               let numOrden = req.body.numOrden || false;
               let codCuartel = req.body.codCuartel || false;
+              let codProducto = req.body.codProducto || false;
               let fechaInicioDesde = req.body.fechaInicioDesde || false;
               let fechaInicioHasta = req.body.fechaInicioHasta || false;
-			  let exportar = req.body.exportar || false;
+              let exportar = req.body.exportar || false;
+
+              sql += " ptapd.id_predio = "+idPredio;
+
+              if(codProducto == parseInt(codProducto) && codProducto > 0){
+                sql += " AND bp.codigo_producto = "+codProducto;
+              }else{
+                if(idInterno){
+                  result.json({"Error":"#25 El valor de codProducto no cumple los requisitos"});
+                  return false;
+                }
+              }
 
               if(idInterno == parseInt(idInterno) && idInterno > 0){
-                sql += " AND id_interno = "+idInterno;
+                sql += " AND ptapd.id_interno = "+idInterno;
               }else{
                 if(idInterno){
                   result.json({"Error":"#25 El valor de idInterno no cumple los requisitos"});
@@ -163,93 +176,90 @@ console.log('datos conn bd',datos);
                 }
               }
 
-             let flag = 0;
+              let flag = 0;
 
-             if(fechaInicioDesde ){
-                 let fechaInicio = new Date(fechaInicioDesde);
-                 if(fechaInicio){
-                   flag += 1;
-                 }else{
-                   result.json({"Error":"#072 El valor de fechaInicioDesde no cumple los requisitos"});
-                   return false;
-                 }
-             }
-             if(fechaInicioHasta ){
-                 let fechaHasta = new Date(fechaInicioHasta);
-                 if(fechaHasta){
-                   flag += 1;
-                 }else{
-                   result.json({"Error":"#072 El valor de fechaInicioHasta no cumple los requisitos"});
-                   return false;
-                 }
-             }
-             if(flag == 2){
-               let fechaInicio = new Date(fechaInicioDesde);
-               let fechaHasta = new Date(fechaInicioHasta);
-               if(fechaInicio <= fechaHasta){
-                   let fechaInicioFormated = formatedDate(fechaInicio);
-                   let fechaHastaFormated = formatedDate(fechaHasta)
-                   sql += " AND fecha_operacion between '"+fechaInicioFormated+"T00:00' and '"+fechaHastaFormated+"T23:59' ";
-               }else{
-                 result.json({"Error":"#725 El valor de las fechas no cumplen los requisitos"});
-                 return false;
-               }
-             }
-             if(flag==1){
-               result.json({"Error":"#907 Solo se envió el dato de una fecha, se piden ambos"});
-               return false;
-             }
-
-			       sql += " ptapd.id_predio = "+id_predio;
-              if(codCuartel == parseInt(codCuartel) && codCuartel > 0 ){
-//
-				        sql += " AND id_cuartel = "+codCuartel;
-              }else{
-                if(codCuartel){
-                  result.json({"Error":"#96 El valor de codCuartel no cumple los requisitos"});
-                  return false;
-                }
-              }
-              sql += "ORDER BY"
-              sql += "ptapd.id_interno";
-
-				setInterval(function(){
-					connection.query("SELECT 1");
-				},5000);
-        console.log(sql);
-              connection.query(sql, function (err, res) {
-                if(err) {
-                    result.json({"Error": "#862 No se pudo obtener el resultado"});
+              if(fechaInicioDesde ){
+                  let fechaInicio = new Date(fechaInicioDesde);
+                  if(fechaInicio){
+                    flag += 1;
+                  }else{
+                    result.json({"Error":"#072 El valor de fechaInicioDesde no cumple los requisitos"});
                     return false;
-                }
-                else{
+                  }
+              }
+              if(fechaInicioHasta ){
+                  let fechaHasta = new Date(fechaInicioHasta);
+                  if(fechaHasta){
+                    flag += 1;
+                  }else{
+                    result.json({"Error":"#072 El valor de fechaInicioHasta no cumple los requisitos"});
+                    return false;
+                  }
+              }
+               if(flag == 2){
+                  let fechaInicio = new Date(fechaInicioDesde);
+                  let fechaHasta = new Date(fechaInicioHasta);
+                  if(fechaInicio <= fechaHasta){
+                      let fechaInicioFormated = formatedDate(fechaInicio);
+                      let fechaHastaFormated = formatedDate(fechaHasta)
+                      sql += " AND fecha_operacion between '"+fechaInicioFormated+"T00:00' and '"+fechaHastaFormated+"T23:59' ";
+                  }else{
+                    result.json({"Error":"#725 El valor de las fechas no cumplen los requisitos"});
+                    return false;
+                  }
+               }
+               if(flag==1){
+                result.json({"Error":"#907 Solo se envió el dato de una fecha, se piden ambos"});
+                return false;
+               }
 
-					if(exportar == 'excel'){
-						var xls = json2xls(res);
-						fs.writeFileSync('archivos/data.xlsx', xls, 'binary');
-					//	result.send("generado");
-						result.download('./archivos/data.xlsx');
-						return true;
-					}
-					if(exportar == 'csv'){
-						var obj = res;
-						var keys = "";
-						for(key in obj){
-							keys += key+",";
-						}
-						const json2csvParser = new Parser({ keys });
-						const csv = json2csvParser.parse(res);
-						result.send(csv)
-						return true;
-					}
-					if(exportar = 'json' || !exportar){
-						result.send(res);
-						return true;
-					}
+               if(codCuartel == parseInt(codCuartel) && codCuartel > 0 ){
+
+                 sql += " AND id_cuartel = "+codCuartel;
+               }else{
+                 if(codCuartel){
+                   result.json({"Error":"#96 El valor de codCuartel no cumple los requisitos"});
+                   return false;
+                 }
+               }
+               sql += " ORDER BY "
+               sql += "ptapd.id_interno";
+
+               setInterval(function(){
+                 connection.query("SELECT 1");
+               },5000);
+               console.log(sql);
+               connection.query(sql, function (err, res) {
+                 if(err) {
+                     result.json({"Error": "#862 No se pudo obtener el resultado"});
+                     return false;
+                 }
 
 
-                }
-              });
+                 if(exportar == 'excel'){
+                   var xls = json2xls(res);
+                   fs.writeFileSync('archivos/data.xlsx', xls, 'binary');
+                   //	result.send("generado");
+                   result.download('./archivos/data.xlsx');
+                   return true;
+                 }
+                 if(exportar == 'csv'){
+                   var obj = res;
+                   var keys = "";
+                   for(key in obj){
+                     keys += key+",";
+                   }
+                   const json2csvParser = new Parser({ keys });
+                   const csv = json2csvParser.parse(res);
+                   result.send(csv)
+                   return true;
+                 }
+                 if(exportar = 'json' || !exportar){
+                   result.send(res);
+                   return true;
+                 }
+
+               });
 
             }
           })
@@ -259,95 +269,38 @@ console.log('datos conn bd',datos);
 }
 
 function resetSql(tipoCosecha){
-//  let sql = "SELECT ";
-//  sql += "predio_trabajos_agricolas.id_interno,predio_trabajos_agricolas.fecha_inicio,predio_trabajos_agricolas.id_cultivo,predio_trabajos_agricolas.id_labor,predio_trabajos_agricolas.cosecha,predio_trabajos_agricolas.valor_total,predio_movimientos.id_interno,predio_movimientos.id_area_operativa,";
-//  sql += "predio_movimientos.valor_total,predio_movimientos.id_tabla_externa,predio_movimientos_detalle.id_producto_bodega,predio_movimientos_detalle.cantidad,predio_movimientos_detalle.dias_carencias,";
-//  sql += "predio_movimientos_detalle.dosis_ha,predio_movimientos_detalle.mojamiento_ha,bodega_productos.nombre_producto,bodega_productos.ing_activo,predio_trabajos_agricolas.fecha_inicio_aplica,";
-//  sql += "predio_trabajos_agricolas.fecha_termino_aplica,predio_trabajos_agricolas.jefe_aplicador_dos,predio_trabajos_agricolas.jefe_dosificador,predio_trabajos_agricolas.id_clima_condicion,predio_trabajos_agricolas.temperatura,";
-//  sql += "predio_trabajos_agricolas.id_clima_condicion_viento,predio_movimientos_detalle.tipo_tratamiento,predio_movimientos_detalle.valor_total,predio_trabajos_agricolas.id_potrero_clasificacion,predio_trabajos_agricolas.hora_inicio_aplica,";
-//  sql += "predio_trabajos_agricolas.hora_termino_aplica,predio_movimientos_detalle.horas_reingreso,predio_trabajos_agricolas.observaciones,bodega_productos.codigo_producto,predio_trabajos_agricolas.id_orden_interno,predio_trabajos_agricolas.id_cuartel AS cod_cuartel,";
-//  sql += "predio_trabajos_agricolas.por_hacer,predio_trabajos_agricolas.id_predio,bodega_productos.unidad_medida,predio_trabajos_agricolas.jefe_huerto,predio_trabajos_agricolas.jefe_aplicador_tres,";
- // sql += "predio_trabajos_agricolas.jefe_aplicador_cuatro,predio_movimientos_detalle.id_interno AS id_registro ";
- // sql += "FROM predio_trabajos_agricolas ";
- // sql += "LEFT OUTER JOIN predio_movimientos ON predio_trabajos_agricolas.id_interno = predio_movimientos.id_tabla_externa ";
- // sql += "LEFT OUTER JOIN predio_movimientos_detalle ON predio_movimientos.id_interno = predio_movimientos_detalle.id_padre_movimiento ";
- // sql += "INNER JOIN bodega_productos ON predio_movimientos_detalle.id_producto_bodega = bodega_productos.id_producto ";
- // sql += "WHERE (predio_trabajos_agricolas.cosecha = '"+tipoCosecha+"')";
-/*
-let sql = "SELECT predio_trabajos_agricolas.id_interno, ";
-    sql += "predio_trabajos_agricolas.id_predio, ";
-    sql += "predio_trabajos_agricolas.id_orden_interno, ";
-    sql += "predio_trabajos_agricolas.fecha_inicio, ";
-    sql += "predio_trabajos_agricolas.id_potrero_clasificacion, ";
-    sql += "predio_trabajos_agricolas.id_cuartel AS cod_cuartel, ";
-    sql += "predio_trabajos_agricolas.id_variedad, ";
-    sql += "predio_trabajos_agricolas.id_labor, ";
-    sql += "predio_trabajos_agricolas.id_labor_valores, ";
-    sql += "predio_movimientos_detalle.tipo_tratamiento, ";
-    sql += "bodega_productos.codigo_producto, ";
-    sql += "bodega_productos.nombre_producto, ";
-    sql += "bodega_productos.ing_activo, ";
-    sql += "predio_movimientos_detalle.cantidad, ";
-    sql += "bodega_productos.unidad_medida, ";
-    sql += "predio_trabajos_agricolas.fecha_inicio_aplica, ";
-    sql += "predio_trabajos_agricolas.hora_inicio_aplica, ";
-    sql += "predio_trabajos_agricolas.fecha_termino_aplica, ";
-    sql += "predio_trabajos_agricolas.hora_termino_aplica, ";
-    sql += "predio_movimientos_detalle.dias_carencias, ";
-    sql += "predio_movimientos_detalle.horas_reingreso, ";
-    sql += "predio_movimientos_detalle.dosis_ha, ";
-    sql += "predio_movimientos_detalle.mojamiento_ha, ";
-    sql += "predio_trabajos_agricolas.por_hacer, ";
-    sql += "predio_trabajos_agricolas.id_clima_condicion, ";
-    sql += "predio_trabajos_agricolas.id_clima_condicion_viento, ";
-    sql += "predio_trabajos_agricolas.temperatura, ";
-    sql += "predio_trabajos_agricolas.jefe_huerto, ";
-    sql += "predio_trabajos_agricolas.jefe_dosificador, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador_dos, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador_tres, ";
-    sql += "predio_trabajos_agricolas.jefe_aplicador_cuatro, ";
-    sql += "predio_trabajos_agricolas.observaciones, ";
-    sql += "predio_movimientos_detalle.valor_total, ";
-    sql += "predio_movimientos_detalle.id_interno AS id_registro ";
-    sql += "FROM predio_trabajos_agricolas ";
-    sql += "LEFT OUTER JOIN predio_movimientos ON predio_trabajos_agricolas.id_interno = predio_movimientos.id_tabla_externa ";
-    sql += "LEFT OUTER JOIN predio_movimientos_detalle ON predio_movimientos.id_interno = predio_movimientos_detalle.id_padre_movimiento ";
-    sql += "INNER JOIN bodega_productos ON predio_movimientos_detalle.id_producto_bodega = bodega_productos.id_producto ";
-    sql += "WHERE (predio_trabajos_agricolas.cosecha = '" + tipoCosecha + "')";
 
-*/
-let sql = "";
-sq += "SELECT";
-sql += "ptapd.id_interno,"
-sql += "ptapd.id_predio,"
-sql += "ptapd.fecha_operacion,"
-sql += "ptapd.id_producto_bodega,"
-sql += "bp.codigo_producto,"
-sql += "bp.nombre_producto,"
-sql += "tum.descripcion,"
-sql += "ptapd.numero_lote,"
-sql += "ptapd.cantidad,"
-sql += "ptapd.id_cuartel,"
-sql += "ptapd.fecha_salida,"
-sql += "ptapd.hectareas,"
-sql += "ptapd.dosis,"
-sql += "tmp.descripcion,"
-sql += "ptap.numero_documento,"
-sql += "ptap.nombre_emisor,"
-sql += "ptap.nombre_autoriza,"
-sql += "ptap.nombre_bodega,"
-sql += "ptap.nombre_receptor,"
-sql += "ptap.num_salidas,"
-sql += "ptap.usuario,"
-sql += "ptap.observacion"
-sql += "FROM"
-sql += "predio_trabajos_agricolas_papeleta_detalle ptapd"
-sql += "LEFT OUTER JOIN predio_trabajos_agricolas_papeleta ptap ON ptapd.id_pta_papeleta = ptap.id_interno"
-sql += "LEFT OUTER JOIN bodega_productos bp ON ptapd.id_producto_bodega = bp.id_producto"
-sql += "LEFT OUTER JOIN tipo_motivos_papeleta tmp ON ptap.id_tipo_motivo = tmp.id_interno"
-sql += "LEFT OUTER JOIN tipo_unidades_medida tum ON bp.unidad_medida = tum.id_interno"
-sql += "WHERE"
+  let sql = "";
+  sql += "SELECT";
+  sql += " ptapd.id_interno,"
+  sql += " ptapd.id_predio,"
+  sql += " ptapd.fecha_operacion,"
+  sql += " ptapd.id_producto_bodega,"
+  sql += " bp.codigo_producto,"
+  sql += " bp.nombre_producto,"
+  sql += " tum.descripcion,"
+  sql += " ptapd.numero_lote,"
+  sql += " ptapd.cantidad,"
+  sql += " ptapd.id_cuartel,"
+  sql += " ptapd.fecha_salida,"
+  sql += " ptapd.hectareas,"
+  sql += " ptapd.dosis,"
+  sql += " tmp.descripcion,"
+  sql += " ptap.numero_documento,"
+  sql += " ptap.nombre_emisor,"
+  sql += " ptap.nombre_autoriza,"
+  sql += " ptap.nombre_bodega,"
+  sql += " ptap.nombre_receptor,"
+  sql += " ptap.num_salidas,"
+  sql += " ptap.usuario,"
+  sql += " ptap.observacion"
+  sql += " FROM"
+  sql += " predio_trabajos_agricolas_papeleta_detalle ptapd"
+  sql += " LEFT OUTER JOIN predio_trabajos_agricolas_papeleta ptap ON ptapd.id_pta_papeleta = ptap.id_interno"
+  sql += " LEFT OUTER JOIN bodega_productos bp ON ptapd.id_producto_bodega = bp.id_producto"
+  sql += " LEFT OUTER JOIN tipo_motivos_papeleta tmp ON ptap.id_tipo_motivo = tmp.id_interno"
+  sql += " LEFT OUTER JOIN tipo_unidades_medida tum ON bp.unidad_medida = tum.id_interno"
+  sql += " WHERE "
 
 
   return sql;
