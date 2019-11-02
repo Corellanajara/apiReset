@@ -1,7 +1,7 @@
 {
   "name": "product-app",
   "version": "1.0.0",
-  "description": "Api para Ropa y estilo ",
+  "description": "Api Reset ",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,13 +10,14 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.18.3",
+    "csvjson": "^5.1.0",
     "express": "^4.16.4",
     "express-fileupload": "^1.1.5",
     "express-ip": "^1.0.3",
     "express-rate-limit": "^5.0.0",
-    "mongoose": "^5.4.2",
+    "json2csv": "^4.5.4",
+    "json2xls": "^0.1.2",
     "mysql": "^2.17.1",
-    "ngrok": "^3.2.5",
     "xss-clean": "^0.1.1"
   }
 }
