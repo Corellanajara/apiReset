@@ -7,9 +7,9 @@ const csvjson = require('csvjson');
 const readFile = require('fs').readFile;
 const writeFile = require('fs').writeFile;
 
-var dba = require('./../dbSofia.js');
-var dbs = require('./../dbSofia.js');
-let tipoCosecha = "A";
+var dba = require('./../../dbSofia.js');
+var dbs = require('./../../dbSofia.js');
+let tipoCosecha = "C";
 const expressip = require('express-ip');
 
 function exportAsExcelFile(json, excelFileName){

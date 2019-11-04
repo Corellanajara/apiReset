@@ -258,20 +258,7 @@ console.log(sql);
 }
 
 function resetSql(tipoCosecha){
-//  let sql = "SELECT ";
-//  sql += "predio_trabajos_agricolas.id_interno,predio_trabajos_agricolas.fecha_inicio,predio_trabajos_agricolas.id_cultivo,predio_trabajos_agricolas.id_labor,predio_trabajos_agricolas.cosecha,predio_trabajos_agricolas.valor_total,predio_movimientos.id_interno,predio_movimientos.id_area_operativa,";
-//  sql += "predio_movimientos.valor_total,predio_movimientos.id_tabla_externa,predio_movimientos_detalle.id_producto_bodega,predio_movimientos_detalle.cantidad,predio_movimientos_detalle.dias_carencias,";
-//  sql += "predio_movimientos_detalle.dosis_ha,predio_movimientos_detalle.mojamiento_ha,bodega_productos.nombre_producto,bodega_productos.ing_activo,predio_trabajos_agricolas.fecha_inicio_aplica,";
-//  sql += "predio_trabajos_agricolas.fecha_termino_aplica,predio_trabajos_agricolas.jefe_aplicador_dos,predio_trabajos_agricolas.jefe_dosificador,predio_trabajos_agricolas.id_clima_condicion,predio_trabajos_agricolas.temperatura,";
-//  sql += "predio_trabajos_agricolas.id_clima_condicion_viento,predio_movimientos_detalle.tipo_tratamiento,predio_movimientos_detalle.valor_total,predio_trabajos_agricolas.id_potrero_clasificacion,predio_trabajos_agricolas.hora_inicio_aplica,";
-//  sql += "predio_trabajos_agricolas.hora_termino_aplica,predio_movimientos_detalle.horas_reingreso,predio_trabajos_agricolas.observaciones,bodega_productos.codigo_producto,predio_trabajos_agricolas.id_orden_interno,predio_trabajos_agricolas.id_cuartel AS cod_cuartel,";
-//  sql += "predio_trabajos_agricolas.por_hacer,predio_trabajos_agricolas.id_predio,bodega_productos.unidad_medida,predio_trabajos_agricolas.jefe_huerto,predio_trabajos_agricolas.jefe_aplicador_tres,";
- // sql += "predio_trabajos_agricolas.jefe_aplicador_cuatro,predio_movimientos_detalle.id_interno AS id_registro ";
- // sql += "FROM predio_trabajos_agricolas ";
- // sql += "LEFT OUTER JOIN predio_movimientos ON predio_trabajos_agricolas.id_interno = predio_movimientos.id_tabla_externa ";
- // sql += "LEFT OUTER JOIN predio_movimientos_detalle ON predio_movimientos.id_interno = predio_movimientos_detalle.id_padre_movimiento ";
- // sql += "INNER JOIN bodega_productos ON predio_movimientos_detalle.id_producto_bodega = bodega_productos.id_producto ";
- // sql += "WHERE (predio_trabajos_agricolas.cosecha = '"+tipoCosecha+"')";
+
 
 let sql = "SELECT predio_trabajos_agricolas.id_interno, ";
     sql += "predio_trabajos_agricolas.id_predio, ";

@@ -25,7 +25,6 @@ app.use(express.json({ limit: '10kb' })); // limitar tamaño peticion para evita
 app.use(bodyParser.urlencoded({ extended: true })); // esto es para tomar la peticion de una forma mas amigable
 app.use(bodyParser.json()); // en particular como formato json
 
-
 // Activar CORS
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "*"); // Permitir peticiones de otras redes
@@ -36,7 +35,10 @@ app.use(function(req, res, next) {
 });
 
 // las url de ruteo
-require('./aplicacion/aplicacion.routes.js')(app);
+require('./cuartel/aplicacion/aplicacion.routes.js')(app);
+require('./cuartel/cosecha/cosecha.routes.js')(app);
+require('./cuartel/labor/labor.routes.js')(app);
+//require('./aplicacion/aplicacion.routes.js')(app);
 require('./papeleta/aplicacion.routes.js')(app);
 
 

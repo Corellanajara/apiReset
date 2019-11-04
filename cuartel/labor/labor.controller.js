@@ -7,8 +7,8 @@ const csvjson = require('csvjson');
 const readFile = require('fs').readFile;
 const writeFile = require('fs').writeFile;
 
-var dba = require('./../dbSofia.js');
-var dbs = require('./../dbSofia.js');
+var dba = require('./../../dbSofia.js');
+var dbs = require('./../../dbSofia.js');
 let tipoCosecha = "A";
 const expressip = require('express-ip');
 
