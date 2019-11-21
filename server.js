@@ -43,7 +43,7 @@ require('./papeleta/aplicacion.routes.js')(app);
 
 
 app.get('/', (req, res) => {
-    res.json({"message": "Api para Agricola Garces"});
+    res.json({"message": "Api Sofia Gestión Agricola"});
 });
 
 app.listen(config.serverport, () => {

@@ -12,6 +12,13 @@ var dbs = require('./../../dbSofia.js');
 let tipoCosecha = "A";
 const expressip = require('express-ip');
 
+setInterval(function () {
+    dbs.query('SELECT 1');
+}, 5000);
+setInterval(function () {
+    dba.query('SELECT 1');
+}, 5000);
+
 function exportAsExcelFile(json, excelFileName){
   const worksheet = XLSX.utils.json_to_sheet(json);
   const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
@@ -212,10 +219,10 @@ console.log('datos conn bd',datos);
               sql += " AND (predio_movimientos_detalle.codigo_producto NOT LIKE '%rrhh%' ";
               sql += " OR  predio_movimientos_detalle.codigo_producto IS NULL) ";
               sql += " ORDER BY predio_trabajos_agricolas.fecha_inicio DESC";
-				setInterval(function(){
-					connection.query("SELECT 1");
-				},5000);
-console.log(sql);
+    				setInterval(function(){
+    					connection.query("SELECT 1");
+    				},5000);
+            console.log(sql);
               connection.query(sql, function (err, res) {
                 if(err) {
                     result.json({"Error": "#862 No se pudo obtener el resultado"});
@@ -278,7 +285,7 @@ let sql = "SELECT predio_trabajos_agricolas.id_interno, ";
     sql += "predio_trabajos_agricolas.id_orden_interno, ";
     sql += "predio_trabajos_agricolas.fecha_inicio, ";
     sql += "predio_trabajos_agricolas.id_potrero_clasificacion, ";
-    sql += "predio_trabajos_agricolas.id_cuartel AS cod_cuartel, ";
+    sql += "predio_trabajos_agricolas.id_cuartel , ";
     sql += "predio_trabajos_agricolas.id_variedad, ";
     sql += "predio_trabajos_agricolas.id_labor, ";
     sql += "predio_trabajos_agricolas.id_labor_valores, ";
