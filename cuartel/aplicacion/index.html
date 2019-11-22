@@ -18,11 +18,11 @@
       <div class="column is-8">
         <h1 style="font-size:55px;">Aplicación por cuarteles</h1>
       </div>
-    </div>    
+    </div>
     <div class="container">
       <form class="" action="http://api.sofiagestionagricola.cl/aplicaciones/cuartel" method="post">
         <div class="field">
-          <label class="label">Key</label>
+          <label class="label">Key del predio</label>
           <div class="control">
             <input class="input is-danger" name="key" type="text" placeholder="key">
           </div>
@@ -35,9 +35,15 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Codigo de cuartel</label>
+          <label class="label">ID cuartel</label>
           <div class="control has-icons-left has-icons-right">
             <input class="input is-success" name="codCuartel" type="text" placeholder="Codigo de cuartel">
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">ID faena</label>
+          <div class="control has-icons-left has-icons-right">
+            <input class="input is-success" name="idFaena" type="text" placeholder="Id de faena">
           </div>
         </div>
         <div class="field">

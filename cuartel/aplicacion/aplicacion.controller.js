@@ -46,6 +46,7 @@ function getIPAddress() {
 }
 
 function formatedDate(fecha){
+  console.log(fecha);
   let Year = fecha.getFullYear();
   let Mes = ""
   let Dias = fecha.getDate()
@@ -238,15 +239,22 @@ console.log('datos conn bd',datos);
 						return true;
 					}
 					if(exportar == 'csv'){
-						var obj = res;
-						var keys = "";
-						for(key in obj){
-							keys += key+",";
-						}
-						const json2csvParser = new Parser({ keys });
-						const csv = json2csvParser.parse(res);
-						result.send(csv)
-						return true;
+            if(res.length>0){
+              var obj = res;
+              var keys = "";
+              for(key in obj){
+                keys += key+",";
+              }
+              const json2csvParser = new Parser({ keys });
+              const csv = json2csvParser.parse(res);
+              result.send(csv)
+  						return true;
+            }else{
+              result.send(res)
+  						return true;
+            }
+
+
 					}
 					if(exportar = 'json' || !exportar){
 						result.send(res);
