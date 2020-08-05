@@ -11,7 +11,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "express-fileupload": "^1.1.5",
+    "express-fileupload": "^1.1.9",
     "express-ip": "^1.0.3",
     "express-rate-limit": "^5.0.0",
     "mongoose": "^5.4.2",
