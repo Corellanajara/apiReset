@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.18.3",
-    "express": "^4.16.4",
+    "express": "^4.17.3",
     "express-fileupload": "^1.1.5",
     "express-ip": "^1.0.3",
     "express-rate-limit": "^5.0.0",
